@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PBS - Siège Cinéma Connecté</title>
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --bg: #f6f8fb;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #dbe2ea;
+    --line: #94a3b8;
+    --primary: #1e293b;
+    --on-primary: #ffffff;
+    --accent: #2563eb;
+    --hover: #eef2f7;
+    --shadow: 0 1px 3px rgba(15, 23, 42, .08);
+    --b-haute-bg: #fef3c7;   --b-haute-fg: #92400e;
+    --b-moy-bg: #e0f2fe;     --b-moy-fg: #075985;
+    --b-basse-bg: #f3e8ff;   --b-basse-fg: #6b21a8;
+    --b-hard-bg: #fee2e2;    --b-hard-fg: #991b1b;
+    --b-soft-bg: #dcfce7;    --b-soft-fg: #166534;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1220; --card: #131c2e; --text: #e8edf5; --muted: #94a3b8;
+      --border: #25324a; --line: #4b5b78; --primary: #0f172a; --on-primary: #e8edf5;
+      --accent: #60a5fa; --hover: #1a2640; --shadow: 0 1px 3px rgba(0,0,0,.4);
+      --b-haute-bg: #4a3410; --b-haute-fg: #fcd34d;
+      --b-moy-bg: #12384f;   --b-moy-fg: #7dd3fc;
+      --b-basse-bg: #3b2457; --b-basse-fg: #d8b4fe;
+      --b-hard-bg: #4c1d1d;  --b-hard-fg: #fca5a5;
+      --b-soft-bg: #123524;  --b-soft-fg: #86efac;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1220; --card: #131c2e; --text: #e8edf5; --muted: #94a3b8;
+    --border: #25324a; --line: #4b5b78; --primary: #0f172a; --on-primary: #e8edf5;
+    --accent: #60a5fa; --hover: #1a2640; --shadow: 0 1px 3px rgba(0,0,0,.4);
+    --b-haute-bg: #4a3410; --b-haute-fg: #fcd34d;
+    --b-moy-bg: #12384f;   --b-moy-fg: #7dd3fc;
+    --b-basse-bg: #3b2457; --b-basse-fg: #d8b4fe;
+    --b-hard-bg: #4c1d1d;  --b-hard-fg: #fca5a5;
+    --b-soft-bg: #123524;  --b-soft-fg: #86efac;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0; padding: 24px 20px 40px;
+    background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.45;
+  }
+  .container { max-width: 1280px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 22px; }
+  h1 { margin: 0 0 4px; font-size: 1.7rem; }
+  .subtitle { margin: 0; color: var(--muted); }
+
+  .tabs { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .tab-btn {
+    padding: 9px 18px; border: 1px solid var(--border); border-radius: 999px;
+    background: var(--card); color: var(--muted); font: inherit; font-weight: 600; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .tab-btn:hover { background: var(--hover); color: var(--text); }
+  .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .74rem; font-weight: 700; white-space: nowrap; }
+  .prio-haute   { background: var(--b-haute-bg); color: var(--b-haute-fg); }
+  .prio-moyenne { background: var(--b-moy-bg);   color: var(--b-moy-fg); }
+  .prio-basse   { background: var(--b-basse-bg); color: var(--b-basse-fg); }
+  .appr-h { background: var(--b-hard-bg); color: var(--b-hard-fg); }
+  .appr-a { background: var(--b-soft-bg); color: var(--b-soft-fg); }
+  .pts { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: .74rem; font-weight: 700;
+         background: var(--hover); color: var(--text); border: 1px solid var(--border); }
+
+  /* Barre d'infos + légende */
+  .toolbar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; margin: 0 0 16px; color: var(--muted); font-size: .86rem; }
+  .toolbar span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* Panneau de détail */
+  .detail {
+    background: var(--card); border: 1px solid var(--border); border-left: 5px solid var(--accent);
+    border-radius: 10px; padding: 14px 18px; margin: 0 auto 18px; max-width: 920px; box-shadow: var(--shadow);
+    min-height: 82px;
+  }
+  .detail .d-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .detail .d-id { font-weight: 800; color: var(--lot, var(--accent)); }
+  .detail .d-title { font-weight: 700; }
+  .detail .d-story { margin: 0; }
+  .detail .d-hint { margin: 0; color: var(--muted); }
+
+  /* ARBRE PBS */
+  .tree-scroll { overflow-x: auto; padding: 6px 2px 14px; }
+  .tree { display: flex; align-items: center; min-width: max-content; }
+
+  .root {
+    position: relative; margin-right: 48px; padding: 18px 22px; width: 190px; text-align: center;
+    background: var(--primary); color: var(--on-primary); border-radius: 12px; box-shadow: var(--shadow);
+  }
+  .root b { display: block; font-size: 1.05rem; }
+  .root small { opacity: .75; }
+  .root::after { content: ""; position: absolute; left: 100%; top: 50%; width: 48px; height: 2px; background: var(--line); }
+
+  .branches { display: flex; flex-direction: column; }
+  .branch { position: relative; display: flex; align-items: center; padding: 12px 0 12px 48px; }
+  .branch::before { content: ""; position: absolute; left: 0; top: 50%; width: 48px; height: 2px; background: var(--line); }
+  .branch::after  { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--line); }
+  .branch:first-child::after { top: 50%; }
+  .branch:last-child::after  { bottom: 50%; }
+  .branch:only-child::after  { display: none; }
+
+  .lot {
+    position: relative; width: 210px; margin-right: 48px; padding: 14px 16px;
+    background: var(--lot); color: #fff; border-radius: 12px; box-shadow: var(--shadow);
+  }
+  .lot::after { content: ""; position: absolute; left: 100%; top: 50%; width: 48px; height: 2px; background: var(--line); }
+  .lot-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+  .lot-name { font-weight: 700; font-size: 1.02rem; margin: 2px 0 6px; }
+  .lot-meta { font-size: .8rem; opacity: .9; }
+
+  .leaves { display: flex; flex-direction: column; }
+  .leaf-wrap { position: relative; padding: 5px 0 5px 40px; }
+  .leaf-wrap::before { content: ""; position: absolute; left: 0; top: 50%; width: 40px; height: 2px; background: var(--line); }
+  .leaf-wrap::after  { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--line); }
+  .leaf-wrap:first-child::after { top: 50%; }
+  .leaf-wrap:last-child::after  { bottom: 50%; }
+  .leaf-wrap:only-child::after  { display: none; }
+
+  .leaf {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 290px; text-align: left;
+    padding: 10px 12px; font: inherit; color: var(--text); cursor: pointer;
+    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--lot);
+    border-radius: 8px; box-shadow: var(--shadow); transition: transform .12s, box-shadow .12s, background .12s;
+  }
+  .leaf:hover { background: var(--hover); transform: translateX(2px); }
+  .leaf[aria-pressed="true"] { outline: 2px solid var(--lot); outline-offset: 1px; }
+  .leaf-id { font-size: .78rem; font-weight: 800; color: var(--lot); }
+  .leaf-title { font-weight: 600; font-size: .93rem; }
+  .leaf-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* Tableaux */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--card); box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; min-width: 760px; }
+  th, td { padding: 11px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+  th { background: var(--primary); color: var(--on-primary); font-size: .85rem; position: sticky; top: 0; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--hover); }
+  td.center, th.center { text-align: center; }
+  .lot-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; background: var(--lot); }
+  tfoot td { font-weight: 700; background: var(--hover); }
+
+  .section-title { margin: 28px 0 10px; font-size: 1.15rem; }
+  .section-title:first-child { margin-top: 0; }
+  .section-sub { margin: -4px 0 12px; color: var(--muted); font-size: .88rem; }
+  .task { font-weight: 600; }
+
+  /* Mobile : arbre empilé */
+  @media (max-width: 860px) {
+    body { padding: 18px 12px 32px; }
+    .tree-scroll { overflow: visible; }
+    .tree { display: block; min-width: 0; }
+    .root { width: auto; margin: 0 0 14px; }
+    .root::after, .branch::before, .branch::after, .lot::after { display: none; }
+    .branch { display: block; padding: 0 0 18px; }
+    .lot { width: auto; margin: 0 0 6px; }
+    .leaf-wrap { padding: 4px 0 4px 26px; }
+    .leaf-wrap::before { left: 8px; width: 18px; }
+    .leaf-wrap::after  { left: 8px; }
+    .leaf-wrap:first-child::after { top: 0; }
+    .leaf { width: 100%; }
+    .leaf:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Product Breakdown Structure (PBS)</h1>
+    <p class="subtitle">Projet : Siège Cinéma Connecté &amp; Fauteuil Intelligent</p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="sch-tab">Vue schématique PBS</button>
+    <button class="tab-btn" data-tab="hybrid-tab">Matrice d'hybridation</button>
+    <button class="tab-btn" data-tab="backlog-tab">Backlog complet</button>
+  </div>
+
+  <!-- ONGLET 1 : PBS -->
+  <div id="sch-tab" class="tab-content active">
+    <div class="toolbar" id="legend"></div>
+    <div class="detail" id="detail"></div>
+    <div class="tree-scroll"><div class="tree" id="tree"></div></div>
+  </div>
+
+  <!-- ONGLET 2 : HYBRIDATION -->
+  <div id="hybrid-tab" class="tab-content">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Identifiant</th><th>Intitulé / Fonctionnalité</th><th>Approche projet</th><th>Justification d'hybridation</th>
+        </tr></thead>
+        <tbody id="hybrid-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ONGLET 3 : BACKLOG -->
+  <div id="backlog-tab" class="tab-content">
+    <h2 class="section-title">Backlog initial</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Lot fonctionnel</th><th>Identifiant</th><th>Description de l'histoire utilisateur</th>
+          <th class="center">Priorité</th><th class="center">Complexité estimée</th>
+        </tr></thead>
+        <tbody id="backlog-body"></tbody>
+        <tfoot><tr><td colspan="4">Total</td><td class="center" id="total-pts"></td></tr></tfoot>
+      </table>
+    </div>
+
+    <h2 class="section-title">Extension du backlog : tâches à réaliser</h2>
+    <p class="section-sub">Second extrait du backlog, avec la colonne « Tâche à réaliser ».</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Lot fonctionnel</th><th>Identifiant</th><th>Description de l'histoire utilisateur</th>
+          <th>Tâche à réaliser</th><th class="center">Priorité</th><th class="center">Complexité</th>
+        </tr></thead>
+        <tbody id="tasks-body"></tbody>
+        <tfoot><tr><td colspan="5">Total</td><td class="center" id="tasks-pts"></td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const LOTS = [
+  { id: 1, nom: "Audio et confort", color: "#2563eb", us: [
+    { id: "1.1", titre: "Annulation active du bruit", prio: "Haute", pts: 5, appr: "H",
+      story: "En tant que spectateur, je veux pouvoir activer le système d'annulation active de bruit afin d'être isolé des bruits ambiants de la salle.",
+      just: "Nécessite l'intégration physique de micros et transducteurs dans le fauteuil." },
+    { id: "1.2", titre: "Réglage du volume directionnel", prio: "Haute", pts: 3, appr: "H",
+      story: "En tant que spectateur, je veux pouvoir régler le volume du système directionnel afin d'adapter le son à ma sensibilité auditive.",
+      just: "Intégration d'enceintes directionnelles dans l'appuie-tête." },
+    { id: "1.3", titre: "Langues & audiodescription", prio: "Haute", pts: 5, appr: "A",
+      story: "En tant que spectateur, je veux pouvoir choisir la langue ou activer l'audiodescription afin de suivre le film dans des conditions adaptées.",
+      just: "Flux audio logiciel commutable selon la sélection de l'utilisateur." },
+    { id: "1.4", titre: "Bulle sonore partagée", prio: "Basse", pts: 8, appr: "A",
+      story: "En tant que spectateur, je veux pouvoir lier les paramètres de mon siège à celui de mon voisin afin de profiter d'une bulle sonore commune.",
+      just: "Protocole réseau local et synchronisation logicielle entre sièges." }
+  ]},
+  { id: 2, nom: "Services annexes", color: "#0d9488", us: [
+    { id: "2.1", titre: "Commande de restauration", prio: "Haute", pts: 8, appr: "A",
+      story: "En tant que spectateur, je veux pouvoir commander des boissons et du pop-corn depuis l'écran afin de consommer sans rater une scène du film.",
+      just: "Interface de commande évolutive liée à l'API du bar / cinéma." },
+    { id: "2.2", titre: "Sous-titres sur accoudoir", prio: "Moyenne", pts: 5, appr: "H",
+      story: "En tant que spectateur, je veux pouvoir activer les sous-titres sur l'écran de l'accoudoir afin de rendre le film accessible en cas de malentendance.",
+      just: "Montage mécanique de l'écran d'accoudoir et câblage." },
+    { id: "2.3", titre: "Export des données émotionnelles", prio: "Basse", pts: 5, appr: "A",
+      story: "En tant que spectateur, je veux pouvoir transférer mes données émotionnelles sur mon téléphone afin de partager mon expérience sur mes réseaux sociaux.",
+      just: "Application mobile / API web de partage sur réseaux sociaux." }
+  ]},
+  { id: 3, nom: "Sécurité et données", color: "#d97706", us: [
+    { id: "3.1", titre: "Alerte médicale automatique", prio: "Moyenne", pts: 13, appr: "H",
+      story: "En tant qu'agent de sécurité, je veux pouvoir recevoir une alerte médicale automatique sur une tablette afin de secourir un spectateur dont les constantes sont critiques.",
+      just: "Capteurs cardiaques / biométriques intégrés au tissu du fauteuil." },
+    { id: "3.2", titre: "Alertes de défaillances", prio: "Moyenne", pts: 3, appr: "A",
+      story: "En tant que technicien de maintenance, je veux recevoir des alertes automatiques sur les défaillances matérielles ou logicielles d'un fauteuil afin de le réparer ou de le désactiver avant la séance suivante.",
+      just: "Système IoT de télémesure et dashboard de maintenance." },
+    { id: "3.3", titre: "Courbe d'attention globale", prio: "Haute", pts: 13, appr: "A",
+      story: "En tant que studio de production, je veux pouvoir consulter la courbe d'attention globale de la salle afin d'évaluer l'efficacité narrative des différentes scènes du film.",
+      just: "Traitement Big Data et algorithmes d'analyse d'engagement." }
+  ]},
+  { id: 4, nom: "Optimisation et recommandation", color: "#7c3aed", us: [
+    { id: "4.1", titre: "Bandes-annonces personnalisées", prio: "Moyenne", pts: 13, appr: "A",
+      story: "En tant que spectateur, je veux voir des bandes-annonces personnalisées sur mon écran d'accoudoir, basées sur mon historique et mes réactions émotionnelles, afin de découvrir des films qui me plaisent.",
+      just: "Moteur de recommandation basé sur l'historique utilisateur." },
+    { id: "4.2", titre: "Ventilation / chauffage par zones", prio: "Moyenne", pts: 8, appr: "H",
+      story: "En tant qu'exploitant, je veux que le système ajuste la ventilation et le chauffage par zones en fonction de l'occupation réelle des sièges afin de réduire ma facture énergétique.",
+      just: "Raccordement physique à la CVC (chauffage, ventilation, climatisation)." },
+    { id: "4.3", titre: "Tarification dynamique", prio: "Moyenne", pts: 13, appr: "A",
+      story: "En tant que plateforme de billetterie, je veux appliquer une tarification dynamique en fonction de la demande et de l'emplacement des fauteuils afin d'optimiser les revenus du cinéma.",
+      just: "Algorithme de pricing dynamique connecté à la billetterie." },
+    { id: "4.4", titre: "Réglages en moins de 3 pressions", prio: "Haute", pts: 8, appr: "A",
+      story: "En tant que spectateur, je veux pouvoir accéder à l'ensemble des réglages du siège en moins de trois pressions sur l'écran tactile afin de garantir une manipulation rapide pendant la projection du film.",
+      just: "Design d'expérience utilisateur (UX / UI) de l'écran tactile." }
+  ]}
+];
+
+const sum = (arr) => arr.reduce((n, u) => n + u.pts, 0);
+const prioClass = (p) => "prio-" + p.toLowerCase();
+const prioBadge = (p) => `<span class="badge ${prioClass(p)}">${p}</span>`;
+const apprBadge = (a) => a === "H"
+  ? '<span class="badge appr-h">Prédictif / Hardware</span>'
+  : '<span class="badge appr-a">Agile / Software</span>';
+
+const ALL = LOTS.flatMap(l => l.us.map(u => ({ ...u, lot: l })));
+const totalUS = ALL.length, totalPts = sum(ALL);
+
+// --- Légende
+document.getElementById("legend").innerHTML =
+  `<span><b>${totalUS}</b> user stories · <b>${totalPts}</b> points au total</span>` +
+  `<span>Priorité : ${prioBadge("Haute")} ${prioBadge("Moyenne")} ${prioBadge("Basse")}</span>` +
+  `<span><span class="pts">8 pts</span> complexité estimée</span>`;
+
+// --- Arbre PBS
+document.getElementById("tree").innerHTML =
+  `<div class="root"><b>Siège Cinéma Connecté</b><small>${LOTS.length} lots · ${totalUS} US</small></div>` +
+  `<div class="branches">` +
+  LOTS.map(l => `
+    <div class="branch" style="--lot:${l.color}">
+      <div class="lot">
+        <div class="lot-kicker">Lot ${l.id}</div>
+        <div class="lot-name">${l.nom}</div>
+        <div class="lot-meta">${l.us.length} US · ${sum(l.us)} pts</div>
+      </div>
+      <div class="leaves">` +
+        l.us.map(u => `
+        <div class="leaf-wrap">
+          <button class="leaf" data-id="${u.id}" aria-pressed="false">
+            <span class="leaf-id">US ${u.id}</span>
+            <span class="leaf-title">${u.titre}</span>
+            <span class="leaf-badges">${prioBadge(u.prio)}<span class="pts">${u.pts} pts</span></span>
+          </button>
+        </div>`).join("") +
+      `</div>
+    </div>`).join("") +
+  `</div>`;
+
+// --- Panneau de détail
+const detail = document.getElementById("detail");
+function showHint() {
+  detail.style.removeProperty("border-left-color");
+  detail.innerHTML = '<p class="d-hint">Cliquez sur une user story de l\'arbre pour afficher son énoncé complet.</p>';
+}
+function showUS(id) {
+  const u = ALL.find(x => x.id === id);
+  detail.style.borderLeftColor = u.lot.color;
+  detail.style.setProperty("--lot", u.lot.color);
+  detail.innerHTML =
+    `<div class="d-head"><span class="d-id">US ${u.id}</span><span class="d-title">${u.titre}</span>` +
+    `${prioBadge(u.prio)}<span class="pts">${u.pts} pts</span>${apprBadge(u.appr)}</div>` +
+    `<p class="d-story">${u.story}</p>`;
+}
+showHint();
+document.getElementById("tree").addEventListener("click", (e) => {
+  const btn = e.target.closest(".leaf");
+  if (!btn) return;
+  const already = btn.getAttribute("aria-pressed") === "true";
+  document.querySelectorAll(".leaf").forEach(b => b.setAttribute("aria-pressed", "false"));
+  if (already) { showHint(); return; }
+  btn.setAttribute("aria-pressed", "true");
+  showUS(btn.dataset.id);
+});
+
+// --- Matrice d'hybridation
+document.getElementById("hybrid-body").innerHTML = ALL.map(u => `
+  <tr>
+    <td><b>US ${u.id}</b></td>
+    <td>${u.titre}</td>
+    <td>${apprBadge(u.appr)}</td>
+    <td>${u.just}</td>
+  </tr>`).join("");
+
+// --- Backlog complet
+document.getElementById("backlog-body").innerHTML = ALL.map(u => `
+  <tr style="--lot:${u.lot.color}">
+    <td><span class="lot-dot"></span>Lot ${u.lot.id} ${u.lot.nom}</td>
+    <td><b>US ${u.id}</b></td>
+    <td>${u.story}</td>
+    <td class="center">${prioBadge(u.prio)}</td>
+    <td class="center">${u.pts}</td>
+  </tr>`).join("");
+document.getElementById("total-pts").textContent = totalPts;
+
+// --- Extension du backlog : tâches à réaliser
+const TASKS = [
+  { lot: "Lot 1 Audio et Confort", color: "#2563eb", id: "1.5",
+    story: "En tant que développeur, je veux configurer l'infrastructure de base afin de faire fonctionner les fonctionnalités audio du fauteuil.",
+    task: "Configurer les serveurs cloud.", prio: "Haute", pts: 5 },
+  { lot: "Lot 2 Interface et Navigation", color: "#db2777", id: "2.4",
+    story: "En tant que testeur, je veux valider et déployer la première version de l'application afin de la rendre utilisable en conditions réelles.",
+    task: "Écrire et exécuter les tests unitaires des modules.", prio: "Haute", pts: 5 },
+  { lot: "Lot 3 Services et Commandes", color: "#0d9488", id: "3.1",
+    story: "En tant que spectateur, je veux pouvoir commander des boissons et du pop-corn depuis l'écran afin de consommer sans rater une scène du film.",
+    task: "Développer le panier d'achat.", prio: "Moyenne", pts: 3 },
+  { lot: "Lot 3 Services et Commandes", color: "#0d9488", id: "3.4",
+    story: "En tant que spectateur, je veux voir des bandes-annonces personnalisées sur mon écran d'accoudoir afin de découvrir des films qui me plairont.",
+    task: "Coder le moteur de recommandation prédictif.", prio: "Moyenne", pts: 8 },
+  { lot: "Lot 3 Services et Commandes", color: "#0d9488", id: "3.5",
+    story: "En tant que spectateur, je veux utiliser un système de paiement sécurisé et authentifié afin de protéger mes données bancaires lors des commandes.",
+    task: "Intégrer la passerelle de paiement sécurisée.", prio: "Haute", pts: 8 },
+  { lot: "Lot 4 Exploitation et Sécurité", color: "#d97706", id: "4.5",
+    story: "En tant que plateforme de billetterie, je veux appliquer une tarification dynamique en fonction de la demande et de l'emplacement des fauteuils afin d'optimiser les revenus du cinéma.",
+    task: "Interfacer le système avec le logiciel de vente de billets existant.", prio: "Moyenne", pts: 5 },
+  { lot: "Lot 4 Exploitation et Sécurité", color: "#d97706", id: "4.6",
+    story: "En tant que responsable de la sécurité, je veux garantir la conformité du traitement des données sensibles et déployer les outils de gestion pour le personnel.",
+    task: "Publier les applications de gestion sur les magasins virtuels.", prio: "Moyenne", pts: 2 }
+];
+document.getElementById("tasks-body").innerHTML = TASKS.map(t => `
+  <tr style="--lot:${t.color}">
+    <td><span class="lot-dot"></span>${t.lot}</td>
+    <td><b>US ${t.id}</b></td>
+    <td>${t.story}</td>
+    <td class="task">${t.task}</td>
+    <td class="center">${prioBadge(t.prio)}</td>
+    <td class="center">${t.pts}</td>
+  </tr>`).join("");
+document.getElementById("tasks-pts").textContent = sum(TASKS);
+
+// --- Onglets
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+    document.getElementById(btn.dataset.tab).classList.add("active");
+    btn.classList.add("active");
+  });
+});
+</script>
+</body>
+</html>
